@@ -167,6 +167,7 @@ VEM-main/
 | 2026-10-28 | Corrigida a sugestão de frota do Painel da Gestora: agora escolhe a combinação com menos assentos vazios, respeitando os veículos ativos (antes, 3 alunos geravam 1 ônibus). Criada a pasta `tests/` (rodar com `python -m unittest discover tests`) e a pasta `docs/sugestoes/` com o backlog de melhorias. |
 | 2026-10-28 | Segurança do login: PIN agora é salvo com hash PBKDF2 + salt (alunos antigos são migrados automaticamente no próximo login; credenciais de teste não mudaram). Novo bloqueio de 5 min após 5 PINs errados. Suíte de testes ampliada para 37 testes (login, hard lock, reservas, check-in). |
 | 2026-10-28 | Corrigido o PWA: novas rotas `/sw.js` e `/manifest.json` (antes davam 404, o app não podia ser instalado nem funcionar offline). Corrigida a perda de embarques no modo offline do motorista e a contagem dobrada de lotação sem conexão. 42 testes. |
+| 2026-11-04 | Banco de dados recriado sem os dados de stress test: agora há 3 alunos de teste e nenhuma reserva, então o painel da gestora abre vazio até alguém reservar. Credenciais de teste não mudaram. O banco fica fora do GitHub e é recriado por `python app.py`. |
 
 ---
 

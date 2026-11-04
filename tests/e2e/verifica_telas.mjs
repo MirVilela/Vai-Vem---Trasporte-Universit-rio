@@ -17,7 +17,7 @@ const pasta = mkdtempSync(join(tmpdir(), "vem_telas_"));
 const CAPTURAS = join(pasta, "capturas");
 mkdirSync(CAPTURAS);
 const COPIA = join(pasta, "copia.db");
-copyFileSync(join(RAIZ, "database.db"), COPIA);
+if (existsSync(join(RAIZ, "database.db"))) copyFileSync(join(RAIZ, "database.db"), COPIA); // clone novo ainda nao tem banco
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const navegador = [process.env.CHROME_PATH,
@@ -64,6 +64,10 @@ const ev = async (expr) => {
   return r.result?.result?.value;
 };
 const ir = async (url) => { await send("Page.navigate", { url }); await sleep(2000); };
+const esperar = async (expr, ms = 10000) => { // Espera a condicao em vez de um tempo fixo
+  for (let t = 0; t < ms; t += 200) { if (await ev(expr) === true) return true; await sleep(200); }
+  return false;
+};
 const foto = async (nome) => {
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(CAPTURAS, nome + ".png"), Buffer.from(r.result.data, "base64"));
@@ -178,12 +182,13 @@ etapa = "motorista";
 await reservarApi("98765432100", "5678", proxSegunda);
 await reservarApi("12345678901", "1234", proxSegunda);
 await ir(`${BASE}/motorista`); await sleep(1200);
-await ev(`${set("login-token", ADMIN)} tentarLogin(); 'ok'`); await sleep(2000);
+await ev(`${set("login-token", ADMIN)} tentarLogin(); 'ok'`);
+await esperar(`document.getElementById('setup-vehicle').options.length > 0 && document.getElementById('setup-rota').options.length > 0`);
 const rotas = await ev(`[...document.getElementById('setup-rota').options].map(o=>o.value+'|'+o.textContent).join(', ')`);
 caso("S11", "seletor de rota sem 'undefined'", !String(rotas).includes("undefined"), rotas);
 await ev(`${set("setup-date", proxSegunda)}${set("setup-type", "IDA")}${set("setup-vehicle", "VAN-02")}
   const r=document.getElementById('setup-rota'); r.selectedIndex=r.options.length>1?1:0; iniciarViagem(); 'ok'`);
-await sleep(2000);
+await esperar(`!!document.querySelector('.checkin-btn')`);
 caso("BASE", "lista mostra os passageiros", (await texto("passenger-list")).includes("Maria"));
 caso("BASE", "ocupacao mostra a capacidade do veiculo", await texto("capacity-count") === "0 / 12", await texto("capacity-count"));
 caso("BASE", "motorista sem rolagem lateral", await semEstouro());
@@ -224,8 +229,10 @@ caso("BASE", "servidor fora: pagina abre pelo cache", await ev(`!!document.getEl
 const veiculosOff = await ev(`document.getElementById('setup-vehicle').options.length`);
 caso("S10", "servidor fora: app recem-aberto lista os veiculos", veiculosOff > 0, veiculosOff);
 await subirServidor();
-await ir(`${BASE}/motorista`); await sleep(1500);
-await ev(`${set("setup-date", proxSegunda)}${set("setup-type", "IDA")}${set("setup-vehicle", "VAN-02")} iniciarViagem(); 'ok'`); await sleep(1500);
+await ir(`${BASE}/motorista`);
+await esperar(`document.getElementById('setup-vehicle').options.length > 0`);
+await ev(`${set("setup-date", proxSegunda)}${set("setup-type", "IDA")}${set("setup-vehicle", "VAN-02")} iniciarViagem(); 'ok'`);
+await esperar(`!!document.querySelector('.checkin-btn')`);
 await ev(`sincronizarFila(); 'ok'`); await sleep(2500);
 caso("BASE", "servidor volta: fila sincroniza", (await checados()) === 2, `${await checados()} gravados`);
 

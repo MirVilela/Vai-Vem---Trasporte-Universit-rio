@@ -29,7 +29,7 @@ Pasta dedicada a **sugestões ainda não implementadas**, levantadas em análise
 | S13 | Exigir login para reservar e consultar agenda (LGPD) | Maria / Ana | Essencial | ⏳ Pendente |
 | S14 | Validar check-in (reserva, veículo único, tipo) | Ana | Importante | ⏳ Pendente |
 | S15 | Corrigir horário dos avisos (UTC → Brasília) | Ana / José | Importante | ⏳ Pendente |
-| S16 | Limpar dados de teste do banco | Ana | Importante | ⏸️ Aguardando autorização |
+| S16 | Limpar dados de teste do banco | Ana | Importante | ✅ Concluída em 2026-11-04 |
 | S17 | Ajustes de leitura no painel da gestora | José | Desejável | ⏳ Pendente |
 | S18 | Calendário obedecer ao corte configurado e à recusa do servidor | José | Essencial | ⏳ Pendente |
 | S19 | Senha da gestora fora do código e modo debug desligado | Ana | Essencial antes do piloto | ⏳ Pendente |

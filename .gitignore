@@ -1,4 +1,4 @@
-# Banco de dados local (criado pelo app.py; contém CPFs e hashes de PIN)
+# Banco de dados local: recriado pelo app.py com os dados de teste (protótipo, sem dados reais)
 database.db
 database.db-wal
 database.db-shm

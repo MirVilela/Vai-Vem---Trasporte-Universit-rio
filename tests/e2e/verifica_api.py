@@ -18,7 +18,8 @@ import app  # noqa: E402
 
 pasta = tempfile.mkdtemp(prefix="vem_api_")
 app.DB_PATH = os.path.join(pasta, "copia.db")
-shutil.copy(os.path.join(RAIZ, "database.db"), app.DB_PATH)
+if os.path.exists(os.path.join(RAIZ, "database.db")):  # clone novo ainda nao tem banco
+    shutil.copy(os.path.join(RAIZ, "database.db"), app.DB_PATH)
 logging.getLogger("VEM").setLevel(logging.CRITICAL)
 app.init_db()
 app.app.logger.disabled = True

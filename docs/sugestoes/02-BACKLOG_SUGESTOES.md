@@ -140,9 +140,7 @@
 
 ## S16 — Limpar dados de teste do banco
 
-- **Prioridade:** Importante; exige autorização, pois apaga dados.
-- **Proposta:** com backup, remover os 100 alunos "Stress Test" e seus check-ins e o ponto "Ponto Editado". Rodar futuros testes de estresse em uma cópia.
-- **Critério de aceite:** viagem da Cidade A finaliza em "Campus (Chegada)".
+- **✅ Concluída (2026-11-04):** com autorização do responsável, o banco foi recriado com os dados básicos (protótipo, sem dados reais). A viagem da Cidade A agora finaliza em "Campus (Chegada)". Rodar futuros testes de estresse em uma cópia.
 
 ## S17 — Ajustes de leitura no painel da gestora
 

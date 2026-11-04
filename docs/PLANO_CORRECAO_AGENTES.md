@@ -14,7 +14,7 @@
 - **Um item por vez.** Mudanças cirúrgicas; sem refatorar o que não está no item.
 - **Sem dependências novas nem frameworks.** Flask, SQLite e JS Vanilla (`CLAUDE.md`).
 - **`SCHEMA.md` é a lei.** Se o JSON ou uma tabela mudar, atualize o `SCHEMA.md` na mesma tarefa. O S13 já autoriza as mudanças descritas nele.
-- **Nunca teste contra o `database.db` real.** `tests/` e `tests/e2e/` usam cópias temporárias. `stress_test.py` e `stress_test_embarque.py` chamam o servidor real da porta 5000 e já poluíram o banco (S16): só rode-os com o servidor apontando para uma cópia.
+- **Nunca teste contra o `database.db` real.** `tests/` e `tests/e2e/` usam cópias temporárias. `stress_test.py` e `stress_test_embarque.py` chamam o servidor real da porta 5000 e já poluíram o banco uma vez (S16): só rode-os com o servidor apontando para uma cópia.
 - **Não apague dados, não faça commit nem push** sem pedido explícito do responsável.
 - **Não relate "corrigido" sem a evidência** do critério de aceite. Uma rota responder 200 não prova que a tela funciona.
 
@@ -32,21 +32,23 @@ Execute na raiz do projeto:
 | `python tests/e2e/verifica_api.py` | Fluxos completos pela API | Python + Flask |
 | `node tests/e2e/verifica_telas.mjs` | Uso real das telas em Chrome headless, largura de celular, modo avião e servidor fora | Node 22+ e Chrome/Edge (`CHROME_PATH` se estiver em outro caminho) |
 
-Cada caso imprime `OK`, `FALHA` ou `PULOU`, com o item entre colchetes. `[BASE]` é o que já funciona e **não pode regredir**. O último comando também imprime a pasta das capturas de tela: abra-as ao mexer em uma tela.
+Cada caso imprime `OK`, `FALHA` ou `PULOU`, com o item entre colchetes. `[BASE]` é o que já funciona e **não pode regredir**. O último comando também imprime a pasta das capturas de tela: abra-as ao mexer em uma tela. Os testes funcionam sem `database.db` (clone novo): nesse caso usam um banco temporário com os dados de teste.
 
-### Resultado de referência (04/11/2026, 14h31, quarta-feira)
+**O banco é de protótipo, sem dados reais, e fica fora do git.** O `python app.py` o recria com os dados básicos: 3 alunos (João `1234`, Maria `5678`, Carlos `0000`), 4 veículos e 2 rotas.
+
+### Resultado de referência (04/11/2026, 14h50, quarta-feira, banco recém-criado)
 
 | Comando | Resultado | Itens com falha |
 | :--- | :--- | :--- |
 | `unittest` | 42 testes OK | — |
-| `verifica_api.py` | 12 falhas | S09 (3), S12 (2), S13 (3), S14 (2), S14-D3 (1), S16 (1) |
+| `verifica_api.py` | 11 falhas | S09 (3), S12 (2), S13 (3), S14 (2), S14-D3 (1) |
 | `verifica_telas.mjs` | 6 falhas | S10 (1), S11 (2), S12 (1), S15 (1), S18 (1) |
 
 **Casos dependentes do calendário:**
 - O cenário de reservar e desmarcar pela tela é `PULOU` se a semana tiver menos de 2 dias liberados (ex.: sexta após o corte). Repita em outro dia antes de encerrar o S12.
 - O caso S18 ajusta o corte conforme a hora atual e é `PULOU` em fins de semana.
 
-**Falhas esperadas ao final se as decisões continuarem em aberto:** `S14-D3` e `S16`. O S08 ainda não tem caso automatizado.
+**Falha esperada ao final se as decisões continuarem em aberto:** `S14-D3`. O S08 ainda não tem caso automatizado.
 
 ---
 
@@ -55,7 +57,6 @@ Cada caso imprime `OK`, `FALHA` ou `PULOU`, com o item entre colchetes. `[BASE]`
 | ID | Pergunta | Bloqueia | Enquanto não houver resposta |
 | :--- | :--- | :--- | :--- |
 | **D1** | Como blindar as vagas de exceção com vários veículos? Reservar em cada veículo ou vincular a exceção a um veículo? (detalhes no S08 do backlog) | S08 | Não implementar. O responsável adiou a decisão em 28/10. |
-| **D2** | Autoriza limpar os dados de teste do `database.db`? | S16 | Não apagar nada. |
 | **D3** | Quem não reservou pode embarcar? | Só a regra "sem reserva" do S14 | Implementar o resto do S14 e deixar esse caso como está. |
 
 ---
@@ -72,10 +73,11 @@ Cada caso imprime `OK`, `FALHA` ou `PULOU`, com o item entre colchetes. `[BASE]`
 | 6 | S14 Validar check-in | Ana | Importante | Parte aguarda D3 |
 | 7 | S15 Horários em Brasília | Ana | Importante | Livre |
 | 8 | S10 Viagem iniciada sem conexão | José | Importante | Livre |
-| 9 | S16 Limpar dados de teste | Ana | Importante | **Aguarda D2** |
-| 10 | S08 Blindar vagas de exceção | Ana + José | Essencial | **Aguarda D1** |
-| 11 | S19 Senha da gestora e modo debug | Ana | Essencial antes do piloto | Livre, mas alinhe com o responsável |
-| 12 | S17 Leitura do painel | José | Desejável | Livre |
+| 9 | S08 Blindar vagas de exceção | Ana + José | Essencial | **Aguarda D1** |
+| 10 | S19 Senha da gestora e modo debug | Ana | Essencial antes do piloto | Livre, mas alinhe com o responsável |
+| 11 | S17 Leitura do painel | José | Desejável | Livre |
+
+S16 (limpar dados de teste) foi concluído em 04/11/2026 com autorização do responsável.
 
 **Tiago (QA) fecha cada item:** roda os três comandos, compara com a referência e confirma que nenhum `[BASE]` regrediu.
 
@@ -140,11 +142,6 @@ Localize o código pelo nome da função; os números de linha mudam.
 - **Sintoma:** com o app aberto já sem rede, veículos e passageiros não carregam; `carregarVeiculos` também gera exceção não tratada.
 - **Correção:** ao carregar, salvar veículos, pontos de rota e lista por `data` + `tipo` no `localStorage`; em falha, usar a cópia e indicar a hora da lista. Sem bibliotecas.
 - **Aceite:** caso S10 em OK; lista "Excecoes de JavaScript" vazia; teste manual iniciando a viagem com o servidor fora.
-
-### S16 — Limpar dados de teste (**aguarda D2**)
-- **Situação:** 100 de 103 alunos e os 100 check-ins são de stress test; o ponto `PR-CIDADEA-10` ("Ponto Editado", ordem 10) impede a viagem de finalizar no campus.
-- **Correção, após autorização:** backup com data; remover check-ins e reservas desses alunos, os alunos `nome LIKE 'Stress%'` e o ponto. Mostrar as contagens ao responsável antes e depois.
-- **Aceite:** caso S16 em OK e os três alunos do seed preservados.
 
 ### S08 — Blindar vagas de exceção (**aguarda D1**)
 Ver backlog. Ao implementar, corrigir também a contagem que ignora o trecho, aplicar a regra em `contarConfirmados` (modo offline) e criar caso em `verifica_api.py`.
