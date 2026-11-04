@@ -1,0 +1,25 @@
+# Banco de dados local (criado pelo app.py; contém CPFs e hashes de PIN)
+database.db
+database.db-wal
+database.db-shm
+*.db.bak*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Relatórios gerados pelos testes de estresse
+stress_test_report.json
+stress_test_embarque_report.json
+
+# Segredos e configuração local
+.env
+.env.*
+
+# Editor e sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
